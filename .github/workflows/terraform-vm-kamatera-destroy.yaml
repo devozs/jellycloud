@@ -52,3 +52,15 @@ jobs:
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
+
+      - name: Commit updated (empty) state to repo
+        run: |
+          cp terraform.tfstate tfstate_backup/terraform.tfstate
+          cp terraform.tfstate.backup tfstate_backup/terraform.tfstate.backup || true
+
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
+          git add tfstate_backup/*
+          git commit -m "Update Terraform state after destroy [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:main
