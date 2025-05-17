@@ -1,0 +1,8 @@
+export KAMATERA_API_CLIENT_ID=b41eed41406e1840b0d159b77253fbf3
+export KAMATERA_API_SECRET=c92dc1ea633dd2a35e9b6c942d55ae74
+
+terraform init
+terraform plan
+terraform apply -auto-approve
+
+
