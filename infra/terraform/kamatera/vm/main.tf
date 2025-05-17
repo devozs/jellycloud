@@ -3,10 +3,22 @@ terraform {
     kamatera = {
       source = "Kamatera/kamatera"
     }
+    random = {
+      source = "hashicorp/random"
+    }
+
   }
 }
 
 provider "kamatera" {
+}
+
+resource "random_id" "network_suffix" {
+  byte_length = 2
+}
+
+resource "random_id" "other_suffix" {
+  byte_length = 2
 }
 
 # define the data center we will create the server and all related resources in
@@ -26,34 +38,34 @@ data "kamatera_image" "ubuntu_1804" {
 }
 
 # create a private network to use with the server
-resource "kamatera_network" "my_private_network" {
-  # the network must be in the same datacenter as the server
-  datacenter_id = data.kamatera_datacenter.toronto.id
-  name = "my-private-network"
+# resource "kamatera_network" "my_private_network" {
+#   # the network must be in the same datacenter as the server
+#   datacenter_id = data.kamatera_datacenter.toronto.id
+#   name = "my-private-network-${random_id.network_suffix.hex}"
   
-  # define multiple subnets to use in this network
-  # this subnet shows full available subnet configurations
-  # the subnet below shows a more minimal example
-  subnet {
-    ip = "172.16.0.0"
-    bit = 23
-    description = "my first subnet"
-    dns1 = "1.2.3.4"
-    dns2 = "5.6.7.8"
-    gateway = "172.16.0.100"
-  }
+#   # define multiple subnets to use in this network
+#   # this subnet shows full available subnet configurations
+#   # the subnet below shows a more minimal example
+#   subnet {
+#     ip = "172.16.0.0"
+#     bit = 23
+#     description = "my first subnet"
+#     dns1 = "1.2.3.4"
+#     dns2 = "5.6.7.8"
+#     gateway = "172.16.0.100"
+#   }
   
-  # a subnet with just the minimal required configuration
-  subnet {
-    ip = "192.168.0.0"
-    bit = 23
-  }
-}
+#   # a subnet with just the minimal required configuration
+#   subnet {
+#     ip = "192.168.0.0"
+#     bit = 23
+#   }
+# }
 
 # create another private network, to show how to connect 2 networks to the server
 resource "kamatera_network" "my_other_private_network" {
   datacenter_id = data.kamatera_datacenter.toronto.id
-  name = "other-network"
+  name = "other-network-${random_id.other_suffix.hex}"
   
   subnet {
     ip = "10.0.0.0"
@@ -80,17 +92,17 @@ resource "kamatera_server" "my_server" {
     name = "wan"
   }
   
-  # attach a private network with a specified ip
-  network {
-    # note that the network full_name attribute needs to be used
-    # this value is populated with the full name of the network which may be different then 
-    # the given network name
-    name = resource.kamatera_network.my_private_network.full_name
-    ip = "192.168.0.10"
-  }
+  # # attach a private network with a specified ip
+  # network {
+  #   # note that the network full_name attribute needs to be used
+  #   # this value is populated with the full name of the network which may be different then 
+  #   # the given network name
+  #   name = kamatera_network.my_private_network.full_name
+  #   ip = "192.168.0.10"
+  # }
   
-  # attache a private network with auto-allocated ip from the available ips in that network
-  network {
-    name = resource.kamatera_network.my_other_private_network.full_name
-  }
+  # # attache a private network with auto-allocated ip from the available ips in that network
+  # network {
+  #   name = kamatera_network.my_other_private_network.full_name
+  # }
 }
