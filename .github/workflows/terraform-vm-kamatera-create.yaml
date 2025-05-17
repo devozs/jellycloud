@@ -12,6 +12,10 @@ jobs:
       run:
         working-directory: infra/terraform/kamatera/vm
 
+    env:
+      KAMATERA_API_CLIENT_ID: ${{ secrets.KAMATERA_API_CLIENT_ID }}
+      KAMATERA_API_SECRET: ${{ secrets.KAMATERA_API_SECRET }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
