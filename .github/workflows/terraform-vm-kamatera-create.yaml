@@ -1,0 +1,45 @@
+name: Terraform Kamatera
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Apply Terraform and Backup State
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra/terraform/kamatera/vm
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+      - name: Backup Terraform state
+        run: |
+          mkdir -p tfstate_backup
+          cp terraform.tfstate tfstate_backup/terraform.tfstate
+          cp terraform.tfstate.backup tfstate_backup/terraform.tfstate.backup || true
+
+      - name: Commit backup to repo
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add tfstate_backup/*
+          git commit -m "Backup Terraform state [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:main

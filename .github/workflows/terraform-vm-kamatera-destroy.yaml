@@ -1,4 +1,4 @@
-name: Terraform Destroy Kamatera
+name: Terraform VM Kamatera - Destroy
 
 on:
   workflow_dispatch:
