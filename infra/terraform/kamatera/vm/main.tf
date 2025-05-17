@@ -12,8 +12,8 @@ provider "kamatera" {
 # define the data center we will create the server and all related resources in
 # see the section below "Listing available data centers" for more details
 data "kamatera_datacenter" "toronto" {
-  country = "Canada"
-  name = "Toronto"
+  country = "Israel"
+  name = "Haifa"
 }
 
 # define the server image we will create the server with
