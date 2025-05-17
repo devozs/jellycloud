@@ -1,4 +1,4 @@
-name: Terraform Kamatera
+name: Terraform VM Kamatera - Create
 
 on:
   workflow_dispatch:
